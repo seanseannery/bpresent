@@ -1,21 +1,16 @@
-<?
+<?php
+require_once 'config/config.php';
+
 class database_object
 {
 
-    protected $dbname
-    protected $dbconn
-    static protected $tablename
-    static protected $field_list
-  
-    function database_object() {
-        this->dbname = $DB_NAME;
-    }
 
-    function database_object( $table, $fields, $errors){
-        $this->tablename = $table;
-        $this->field_list = $fields;
-        $this->error_list = $errors;
-        
+    static protected $dbconn;
+    static protected $tablename;
+    static protected $field_list;
+
+    
+    function database_object( ){
     }
 
     function select($where) {
@@ -27,6 +22,7 @@ class database_object
         }
         catch(PDOException $e) {
             echo $e->getMessage();
+            echo $select_sql;
         }
     }
 
@@ -41,17 +37,18 @@ class database_object
         }
         catch(PDOException $e) {
             echo $e->getMessage();
+            echo $insert_sql;
         }
     }
 
     //creates the tables, mainly used in init scripts
     static function create_table() {
         try{
-            var $create_sql = "CREATE TABLE IF NOT EXISTS " . $this->tablename . "( ";
+            $create_sql = "CREATE TABLE IF NOT EXISTS " . $this->tablename . "( ";
 
             $out = array();
             foreach ($this->field_list as $name => $type) {
-                 $out[] = "$name $type"
+                 $out[] = "$name $type";
             }
             $create_sql .= implode(", ", $out) . ")";
 
@@ -59,26 +56,44 @@ class database_object
         }
         catch(PDOException $e) {
             echo $e->getMessage();
+            echo $create_sql;
         }
     }
 
-    function connect() {
+    //creates the tables, mainly used in init scripts
+    static function drop_table() {
+    	try{
+    		$create_sql = "DROP TABLE IF EXISTS " . $this->tablename ;
+       
+    		$this->dbconn->exec("$create_sql");
+    	}
+    	catch(PDOException $e) {
+    		echo $e->getMessage();
+    		echo $create_sql;
+    	}
+    }
+    
+    
+    
+    static function connect() {
         try{
-            // Create (connect to) SQLite database in file
-            $this->dbconn = new PDO('sqlite:' . $this->dbname);
-            // Set errormode to exceptions
-            $this->dbconn->setAttribute(PDO::ATTR_ERRMODE, 
-                                    PDO::ERRMODE_EXCEPTION);
+        	if ($this->dbconn == null) {
+	            // Create (connect to) SQLite database in file
+	            $this->dbconn = new PDO('sqlite:' . $DB_NAME);
+	            // Set errormode to exceptions
+	            $this->dbconn->setAttribute(PDO::ATTR_ERRMODE, 
+	                                    PDO::ERRMODE_EXCEPTION);
+        	}
         }
         catch(PDOException $e) {
             echo $e->getMessage();
         }
     }
 
-    function disconnect() {
+    static function disconnect() {
         try{
             // Close file db connection
-            $file_db = null
+            $this->dbconn = null;
         }
         catch(PDOException $e) {
             echo $e->getMessage();
@@ -88,5 +103,6 @@ class database_object
 
 
 
-{
+}
 ?>
+
