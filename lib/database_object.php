@@ -50,12 +50,23 @@ class database_object
     	}
     }
     
-    function select($where) {
+    function select($where, $orderby="") {
     	$this->connect();
     	
         try{
-            $select_sql = "SELECT " . implode(", ", array_keys($this->field_list)) . " FROM " . $this->tablename  
-                            . " WHERE $where";
+        	$where_sql = "";
+        	if (!empty($where)){
+        		$where_sql = " WHERE " . $wgmahere;
+        	}
+        	$orderby_sql = "";
+        	if (!empty($orderby)){
+        		$orderby_sql = " ORDER BY " . $orderby;
+        	}
+            $select_sql = "SELECT " . implode(", ", array_keys($this->field_list))
+                            . " FROM " . $this->tablename  
+                            . $where_sql
+                            . $orderby_sql;
+            
 
             return $this->dbconn->query($select_sql);
         }
@@ -65,6 +76,24 @@ class database_object
         }
     }
 
+    function destroy() {
+    	$this->connect();
+    	 
+    	try{
+    		$sql = "DELETE FROM  $this->tablename WHERE id = " .  $this->record_values["id"];
+    
+    		$stmt = $this->dbconn->prepare($sql);
+            $stmt->execute();
+    	}
+    	catch(PDOException $e) {
+    		echo $e->getMessage();
+    		echo $sql;
+   		 }
+   		 
+   		 $this->record_values['id'] = "NULL";
+   		 $this->disconnect();
+  	}
+    
     function save() {
     	$this->connect();
     	
