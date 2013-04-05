@@ -29,7 +29,7 @@ class ldap_utils {
 		$entry = ldap_first_entry($conn, $result);
 		$attributes = ldap_get_attributes($conn, $entry);
 		var_dump($attributes);
-		var_dump($entry)
+		var_dump($entry);
 		ldap_free_result($result);
 		ldap_unbind($bind);
 		if (!($bind = ldap_bind($conn, ldap_get_dn($conn, $entry), $pswd)))

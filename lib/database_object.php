@@ -14,7 +14,7 @@ class database_object
     {
     	if (array_key_exists($name, $this->record_values)) {
         	$this->record_values[$name] = $value;
-    	} else {	
+    	} else {
     		$trace = debug_backtrace();
     		trigger_error(
     				'Undefined property via __set(): ' . $name .  ' in ' . $trace[0]['file'] .
