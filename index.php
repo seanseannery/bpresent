@@ -1,4 +1,4 @@
-<?php include 'includes/_header.php' ?>
+<?php include 'view/_header.php' ?>
 
 <h2> Sign in </h2>
 
@@ -16,4 +16,4 @@
 	</p>
 </form>
 
-<?php include 'includes/_footer.php' ?>
+<?php include 'view/_footer.php' ?>
