@@ -11,8 +11,9 @@ abstract class controller_object {
 	public function ExecuteAction() {
 		return $this->{$this->action}();
 	}
-	protected function ReturnView($viewmodel,  $fullview, $errors="") {
-		$content = 'view/' . get_class($this) . '/' . $this->action . '.php';
+	protected function ReturnView($data,  $fullview, $errors="") {
+		$ctrllr_str =  str_replace( "_controller", "", get_class($this));
+		$content = 'view/' . $ctrllr_str . '/' . $this->action . '.php';
 		if ($fullview) {
 			require('view/maintemplate.php');
 		} else {

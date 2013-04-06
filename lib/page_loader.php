@@ -8,9 +8,9 @@ class page_loader {
 	public function __construct($urlvalues) {
 		$this->urlvalues = $urlvalues;
 		if (empty($this->urlvalues['c']) || $this->urlvalues['c'] == "") {
-			$this->controller = "home";
+			$this->controller = "home_controller";
 		} else {
-			$this->controller = $this->urlvalues['c'];
+			$this->controller = $this->urlvalues['c'] . '_controller';
 		}
 		if (empty($this->urlvalues['a']) || $this->urlvalues['a'] == "") {
 			$this->action = "index";

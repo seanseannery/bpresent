@@ -60,12 +60,12 @@ class database_object
 
     }
     
-    function getAll($where=null){
+    function getAll($where=null, $orderby=""){
     	
     	$classname = get_class($this);
     	$instance = new $classname();
     	
-    	$rows = $instance->select($where);
+    	$rows = $instance->select($where, $orderby);
     	
     	$results = array();
     	foreach ($rows as $r) {

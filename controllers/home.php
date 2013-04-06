@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/../lib/controller_object.php';
 require_once dirname(__FILE__) . '/../lib/ldap_utils.php';
 
-class home extends controller_object {
+class home_controller extends controller_object {
 	protected function Index() {
 		
 		$this->ReturnView(null, true);

@@ -33,7 +33,7 @@ if (Config::IS_TEST_ENV)
 {
 	echo "<h4>Testing...</h4>";
 	
-	$lab1 = new lab("CS56", "1pm", "", "W13");
+	$lab1 = new lab("CS56", "1pm", "", "W", "2013");
 	$lab1->save();
 	
 	$u1 = new user("Ted Nugent", "tnug",  "tnug@umail.com", "student" );

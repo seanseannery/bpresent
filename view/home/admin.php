@@ -1,6 +1,6 @@
 <?php
 $temp = new lab();
-$labs = $temp->getAll();
+$labs = $temp->getAll(null, 'classname ASC');
 $temp = new user();
 $admins = $temp->getAll(array('role'=>'admin'));
 $tas = $temp->getAll(array('role'=>'ta'));
@@ -13,20 +13,29 @@ $students = $temp->getAll(array('role'=>'student'));
 	<h3>Labs</h3>
 	<table>
 		<tr>
-			<th>Quarter</th> <th>Class</th> <th>Lab</th>
+			<th>Quarter</th> <th>Class</th> <th>Lab</th> <th> TAs </th> <th> edit </th>
 		</tr>
 <?php 
 foreach($labs as $lab){
 ?>
 		 <tr>
-		 	<td><?= $lab->quarter ?></td> <td><?= $lab->classname ?></td> <td><?= $lab->labtime ?></td>
+		 	<td><?= $lab->quarter ?> <?= $lab->year ?></td> <td><?= $lab->classname ?></td> 
+		 	<td>
+		 	<a href="?c=lab&id=<?= $lab->id ?>"><?= $lab->labtime ?></a>
+		 	</td> 	 <td><?= $lab->tas ?></td>
+		 	 <td> <a href="?c=lab&a=edit&id=<?= $lab->id ?>">Edit</a> </td>
 		 </tr>
 
  <?php 	
 }
 ?>		
 	</table>
-	
+	<form>
+	<input type="submit" value="Add New Lab" />
+	<input type="hidden" name="a" value="edit" />
+	<input type="hidden" name="c" value="lab" />
+	 
+	</form>
 	
 	<h3>Admins</h3>	
 	<table>
