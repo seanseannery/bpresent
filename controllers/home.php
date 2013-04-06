@@ -36,8 +36,8 @@ class home extends controller_object {
 		
 		if ($success) {
 			//look up account to see if it is a student or a ta
-				
-			$results = user::getAll(array("userid"=>$user));
+			$temp = new user();	
+			$results = $temp->getAll(array("userid"=>$user));
 				
 			if (sizeof($results) < 1){
 				//user doesnt exist in our system, add them as a student

@@ -43,9 +43,10 @@ if (Config::IS_TEST_ENV)
 	
 	print "id: $id <br/>";
 	
-	//$ted = new user();
+	$ted = new user();
 	// echo $ted . "<br/>";
-	$ted = User::getByID($id);
+
+	$ted = $ted->getByID($id);
 
     echo $ted . "<br/>";
     echo $lab1 . "<br/>";

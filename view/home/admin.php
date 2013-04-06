@@ -1,9 +1,11 @@
 <?php
-$labs = lab::getAll();
-$admins = user::getAll(array('role'=>'admin'));
-$tas = user::getAll(array('role'=>'ta'));
+$temp = new lab();
+$labs = $temp->getAll();
+$temp = new user();
+$admins = $temp->getAll(array('role'=>'admin'));
+$tas = $temp->getAll(array('role'=>'ta'));
 $all_admins = array_merge($admins, $tas);
-$students = user::getAll(array('role'=>'student'));
+$students = $temp->getAll(array('role'=>'student'));
 
 ?>
 

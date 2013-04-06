@@ -48,8 +48,8 @@ class database_object
     	$this->record_values = $row_array;
     }
     
-    static function getByID($id){
-    	$classname = get_called_class();
+    function getByID($id){
+    	$classname = get_class($this);
     	$instance = new $classname();
     	$row = $instance->select(array("id" => $id));
     	foreach ($row as $r){
@@ -60,9 +60,9 @@ class database_object
 
     }
     
-    static function getAll($where=null){
+    function getAll($where=null){
     	
-    	$classname = get_called_class(); 
+    	$classname = get_class($this);
     	$instance = new $classname();
     	
     	$rows = $instance->select($where);

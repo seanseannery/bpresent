@@ -22,7 +22,7 @@ class config{
 	const ADMIN_USERNAME = 'sean';
 	
 	public static function DB_NAME(){
-		return __DIR__ . "/.." . self::$DB_NAME;
+		return dirname(__FILE__) . "/.." . self::$DB_NAME;
 	}
 	
 	
