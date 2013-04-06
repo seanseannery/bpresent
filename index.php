@@ -1,19 +1,15 @@
-<?php include 'view/_header.php' ?>
+<?php
+//require the general classes
+require("lib/page_loader.php");
+require_once "model/user.php";
+require("model/lab.php");
+require("model/attendance.php");
+//require the controller classes
+require("controllers/home.php");
 
-<h2> Sign in </h2>
+//process get urls, store them, and create appropriate controller to redirect.
+$loader = new page_loader($_GET);
+$controller = $loader->CreateController();
+$controller->ExecuteAction();
 
-<form action="process_login.php" method="POST">
-	<p>
-	Username:
-	<input type="text" id="username" name="username" />
-	</p>
-	<p>
-	Password:
-	<input type="password" id="passwd" name="passwd" />
-	</p>
-	<p>
-	<input type="submit" />
-	</p>
-</form>
-
-<?php include 'view/_footer.php' ?>
+?>
