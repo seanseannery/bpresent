@@ -23,7 +23,7 @@ class ldap_utils {
 			return array(False, "Search failed on the " . Config::LDAP_NAME . " LDAP server.");
 		$count = ldap_count_entries($conn, $result);
 		if (!$count)
-			return array(False, INVALID_LOGIN);
+			return array(False, 'Bad username and password combination.');
 		elseif($count > 1)
 		return array(False, 'More than one result returned. Aborting.');
 		$entry = ldap_first_entry($conn, $result);
@@ -33,11 +33,22 @@ class ldap_utils {
 		ldap_free_result($result);
 		ldap_unbind($bind);
 		if (!($bind = ldap_bind($conn, ldap_get_dn($conn, $entry), $pswd)))
-			return array(False, INVALID_LOGIN);
+			return array(False, 'Bad username and password combination.');
 		ldap_unbind($bind);
 		return array(True, $attributes['cn'][0]);
 	}
 	
+	static function is_valid_login_location(){
+		//check user agent IP/hostname and compare with lab workstation IPS to ensure logging in from the lab.
+		if (in_array($_SERVER["REMOTE_ADDR"], Config::$VALID_LOCATIONS) || in_array( gethostbyaddr($_SERVER["REMOTE_ADDR"]), Config::$VALID_LOCATIONS) )
+			return true;
+		else {
+			if (Config::IS_TEST_ENV) {
+				return true;		
+			}
+			return false;
+		}
+	}
 	
 	
 }

@@ -42,12 +42,38 @@ class database_object
     	$this->record_values = array("id" => "NULL");
     }
 
-    function load($id){
-    	$result = $this->select("id = $id");
-    	
-    	foreach ($result as $r){
-    		$this->record_values = $r;
+
+    
+    public function load_by_row($row_array){
+    	$this->record_values = $row_array;
+    }
+    
+    static function getByID($id){
+    	$classname = get_called_class();
+    	$instance = new $classname();
+    	$row = $instance->select(array("id" => $id));
+    	foreach ($row as $r){
+    		$instance->load_by_row($r);
     	}
+   	
+    	return $instance;
+
+    }
+    
+    static function getAll($where=null){
+    	
+    	$classname = get_called_class(); 
+    	$instance = new $classname();
+    	
+    	$rows = $instance->select($where);
+    	
+    	$results = array();
+    	foreach ($rows as $r) {
+    		$temp = new $classname();
+    		$temp->load_by_row($r);
+    		$results[] = $temp;
+    	}
+    	return $results;
     }
     
     function select($where, $orderby="") {
@@ -56,7 +82,14 @@ class database_object
         try{
         	$where_sql = "";
         	if (!empty($where)){
-        		$where_sql = " WHERE " . $wgmahere;
+        		
+        		$key_value_pairs = array();
+        		foreach ($where as $name => $data) {
+        				$key_value_pairs[] = "$name = :$name";
+
+        		}
+        		$where_sql = " WHERE " . implode(" AND ", $key_value_pairs);
+        		
         	}
         	$orderby_sql = "";
         	if (!empty($orderby)){
@@ -66,13 +99,32 @@ class database_object
                             . " FROM " . $this->tablename  
                             . $where_sql
                             . $orderby_sql;
+                      
             
+            $stmt = $this->dbconn->prepare($select_sql);
+           
+            if (isset($where))
+	            foreach($where as $key=>$value){
+	            	$stmt->bindValue(":$key", $value);
+	            }
+	            
+            $results = array();
+            if ($stmt->execute()) {
+            	while ($row = $stmt->fetch()) {
+            		
+            		$results[] = array_intersect_key( $row, $this->record_values);
+            		
+            	}
+            }
 
-            return $this->dbconn->query($select_sql);
+            return $results;
         }
         catch(PDOException $e) {
             echo $e->getMessage();
             echo $select_sql;
+            echo "<pre>";
+            //$stmt->debugDumpParams();
+            echo "</pre>";
         }
     }
 
@@ -80,10 +132,10 @@ class database_object
     	$this->connect();
     	 
     	try{
-    		$sql = "DELETE FROM  $this->tablename WHERE id = " .  $this->record_values["id"];
+    		$sql = "DELETE FROM  $this->tablename WHERE id = ?";
     
     		$stmt = $this->dbconn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute(array($this->record_values["id"]));
     	}
     	catch(PDOException $e) {
     		echo $e->getMessage();
@@ -99,37 +151,64 @@ class database_object
     	
         try{
         	
-        	$key_value_pairs = array();
-        	foreach ($this->record_values as $name => $data) {
-        		if ($name != "id"){
-        			$key_value_pairs[] = "$name = $data";
+        	$where_place_holders = array();
+        	foreach ($this->record_values as $key => $value) {
+        		if ($key != "id"){
+        			$where_place_holders[] = "$key = :$key";
         		}
         	}
-        	
+        	        	
         	//insert a new record
         	if ($this->id == "NULL"){
-	            $sql = "INSERT INTO $this->tablename  (" . implode(", ", array_keys($this->record_values)) . 
-	                          ") VALUES (" . implode(", ", array_values($this->record_values)) . ")" ;
-	
+        		$insert_place_holders = array();
+        		foreach($this->record_values as $key=>$value){
+        			if ($value != "NULL" || !empty($value)){
+        				$insert_place_holders[$key] = ":$key";
+        			}
+        		}
+        		
+	            $sql = "INSERT INTO $this->tablename  (" . implode(", ", array_keys($insert_place_holders)) . 
+	                          ") VALUES (" . implode(", ", $insert_place_holders) . ")";
 	            $stmt = $this->dbconn->prepare($sql);
+	            
+	            foreach($this->record_values as $key=>$value){
+	            	if ($value != "NULL" && !empty($value)){
+		            	$stmt->bindValue(":$key", $value);
+	            	}
+	            }
+	           
 	            $stmt->execute();
 	            
 	            //populate id
-	            $sql = 'SELECT id FROM '.$this->tablename.' WHERE ' . implode(" AND ", $key_value_pairs);
-	            $result = $this->dbconn->query($sql);
-	            foreach ($result as $m) {
-	            	$this->id = $m["id"];
+	            $sql = 'SELECT id FROM '.$this->tablename.' WHERE ' . implode(" AND ", $where_place_holders);
+	            $stmt = $this->dbconn->prepare($sql);
+	            
+	            foreach($this->record_values as $key=>$value){
+	            	if ($value != "NULL" && !empty($value)){
+		            	$stmt->bindValue(":$key", $value);
+	            	}
 	            }
 	            
+	            if ($stmt->execute()) {
+	            	while ($row = $stmt->fetch()) {
+	            		$this->id = $row["id"];
+	            	}
+	            }
+	            	            
 	            return $this->id;
 	            
         	} else {
         	//update an existing record
 
         		
-        		$sql = "UPDATE $this->tablename SET (" . implode(", ", $key_value_pairs) . " WHERE ID = " . $this->id;
+        		$sql = "UPDATE $this->tablename SET " . implode(", ", $where_place_holders) . " WHERE ID = " . $this->id;
         	
         		$stmt = $this->dbconn->prepare($sql);
+        		foreach($this->record_values as $key=>$value){
+        			if ($key != "id"){
+        				$stmt->bindValue(":$key", $value);
+        			}
+        		}
         		$stmt->execute();
         		
         		return $this->id;
@@ -139,7 +218,9 @@ class database_object
         }
         catch(PDOException $e) {
             echo $e->getMessage();
-            echo $sql;
+            echo "<pre>";
+            $stmt->debugDumpParams();
+            echo "</pre>";
         }
     }
 
@@ -185,15 +266,18 @@ class database_object
     function connect() {
         try{
         	if ($this->dbconn == null) {
+        		
 	            // Create (connect to) SQLite database in file
-	            $this->dbconn = new PDO('sqlite:' . config::DB_NAME);
+	            $this->dbconn = new PDO('sqlite:' . config::DB_NAME());
 	            // Set errormode to exceptions
 	            $this->dbconn->setAttribute(PDO::ATTR_ERRMODE, 
 	                                    PDO::ERRMODE_EXCEPTION);
+	            
         	}
         }
         catch(PDOException $e) {
             echo "Error connecting \n" . $e->getMessage() ."\n". $e->getTrace();
+            echo "<pre>" . var_dump($this) . "</pre>";
         }
     }
 
@@ -207,8 +291,20 @@ class database_object
         }
 
     }
+    
 
-
+	function __destruct(){
+		$this->disconnect();
+	}
+	
+	function __toString() {
+		$return_val = "";
+		foreach ($this->record_values as $key=>$value){
+			$return_val .= "$key=$value, ";
+		}
+		return get_class($this) . "[" . $return_val . "]";
+		
+	}
 
 }
 ?>

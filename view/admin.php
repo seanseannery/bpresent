@@ -1,5 +1,5 @@
 <?php 
-include_once dirname(__FILE__) . '/../lib/lab.php';
+include_once dirname(__FILE__) . '/../model/lab.php';
 ?>
 <html>
 <head></head>

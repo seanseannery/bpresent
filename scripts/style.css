@@ -6,6 +6,10 @@ body{
 	
 }
 
+.error{
+	color: red;
+}
+
 h1 {
 	background-color: #DDDDFF;
 }
