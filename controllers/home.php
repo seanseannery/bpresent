@@ -29,8 +29,8 @@ class home_controller extends controller_object {
 		}
 		
 	
-		$user = $_GET['username'];
-		$password = $_GET['passwd'];
+		$user = $_POST['username'];
+		$password = $_POST['passwd'];
 		//msg is user name if successful and error msg if no
 		list($success, $msg) = ldap_utils::login( $user, $password);
 		

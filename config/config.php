@@ -13,7 +13,7 @@ class config{
 	const LDAP_NAME = 'College of Engineering';
 	
 	//turns off ldap server when testing locally
-	const IS_TEST_ENV = true;
+	const IS_TEST_ENV = false;
 	
 	//populate this array with valid ip/computers students are allowed to log in to
 	public static $VALID_LOCATIONS = array();
